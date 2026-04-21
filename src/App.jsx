@@ -551,9 +551,9 @@ export default function App() {
             <button key={v} onClick={()=>{setView(v);setFocus(null);}} style={pill(C,view===v)}>{v==="daily"?"일간":v==="weekly"?"주간":"월간"}</button>
           ))}
           <div style={{flex:1}}/>
-          <button onClick={()=>navigate(-1)} style={SQ(C)}><</button>
+          <button onClick={()=>navigate(-1)} style={SQ(C)}>←</button>
           <button onClick={()=>{setNav(TD);setFocus(null);}} style={{...SQ(C),width:"auto",padding:"0 8px",fontSize:"10px"}}>오늘</button>
-          <button onClick={()=>navigate(1)} style={SQ(C)}>></button>
+          <button onClick={()=>navigate(1)} style={SQ(C)}>→</button>
         </div>
 
         {/* Daily */}
