@@ -48,11 +48,9 @@
       "target": [{ "target": "AppImage", "arch": ["x64"] }],
       "icon": "assets/icon.png"
     },
-    "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true,
-      "installerLanguages": ["Korean", "English"],
-      "language": "1042"
-    }
+   "nsis": {
+  "oneClick": false,
+  "allowToChangeInstallationDirectory": true
+}
   }
 }
