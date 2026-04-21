@@ -13,13 +13,15 @@ const DEF = {
   accent:"#3B5BDB", impColor:"#ffab01", normColor:"#2F9E44",
   muted:"#A09896", border:"#d6d6d6", todayBg:"#EBF0FF",
   font:"Georgia, 'Times New Roman', serif",
-  showTimer: true
+  showTimer: true,
+  fontScale: 1
 };
 const DEF_CATS = ["일반","개인","업무","기타"];
 const FALLBACK_FONTS = ["Georgia","Times New Roman","Palatino","Garamond","Book Antiqua","Arial","Verdana","Tahoma","Trebuchet MS","Arial Black","Impact","Courier New","Lucida Console","Malgun Gothic","나눔고딕","나눔명조","나눔바른고딕","나눔스퀘어","Apple SD Gothic Neo","Noto Sans KR","Noto Serif KR","Pretendard","Spoqa Han Sans Neo","KoPubWorldDotum","KoPubWorldBatang"];
 
-const SQ = (C,bg=C.card,col=C.text,sz=26) => ({ width:`${sz}px`,height:`${sz}px`,display:"flex",alignItems:"center",justifyContent:"center",background:bg,color:col,border:`1px solid ${C.border}`,borderRadius:"4px",cursor:"pointer",fontSize:"11px",flexShrink:0,padding:0,lineHeight:1,fontFamily:"inherit",boxSizing:"border-box" });
-const pill = (C,active) => ({ padding:"3px 10px",fontSize:"11px",border:`1px solid ${active?C.accent:C.border}`,borderRadius:"20px",cursor:"pointer",background:active?C.accent:"transparent",color:active?"#fff":C.muted,fontFamily:"inherit" });
+const mkC = (cfg) => { const C={...DEF,...cfg}; C.fs=(n=>Math.round(n*(C.fontScale||1))+"px"); return C; };
+const SQ = (C,bg=C.card,col=C.text,sz=26) => ({ width:`${sz}px`,height:`${sz}px`,display:"flex",alignItems:"center",justifyContent:"center",background:bg,color:col,border:`1px solid ${C.border}`,borderRadius:"4px",cursor:"pointer",fontSize:C.fs(11),flexShrink:0,padding:0,lineHeight:1,fontFamily:"inherit",boxSizing:"border-box" });
+const pill = (C,active) => ({ padding:"3px 10px",fontSize:C.fs(11),border:`1px solid ${active?C.accent:C.border}`,borderRadius:"20px",cursor:"pointer",background:active?C.accent:"transparent",color:active?"#fff":C.muted,fontFamily:"inherit" });
 
 // ── TaskDots ──────────────────────────────────────────────────────────
 function TaskDots({ items, C, max=5, inline=false, dotSize=6 }) {
@@ -41,7 +43,7 @@ function ProgBar({ p, C }) {
       <div style={{flex:1,height:"3px",background:C.border,borderRadius:"2px"}}>
         <div style={{width:`${p}%`,height:"100%",background:C.accent,borderRadius:"2px",transition:"width 0.3s"}}/>
       </div>
-      <span style={{fontSize:"10px",color:C.accent,fontWeight:"600",minWidth:"26px",textAlign:"right"}}>{p}%</span>
+      <span style={{fontSize:C.fs(11),color:C.accent,fontWeight:"600",minWidth:"26px",textAlign:"right"}}>{p}%</span>
     </div>
   );
 }
@@ -51,17 +53,17 @@ function AddForm({ txt, setTxt, cat, setCat, imp, setImp, onAdd, C, cats }) {
   return (
     <div style={{display:"flex",gap:"4px",alignItems:"center",marginBottom:"10px"}}>
       <select value={cat} onChange={e=>setCat(e.target.value)}
-        style={{height:"26px",border:`1px solid ${C.border}`,borderRadius:"4px",background:C.card,color:C.text,fontFamily:"inherit",fontSize:"10px",padding:"0 3px",cursor:"pointer",flexShrink:0}}>
+        style={{height:"28px",border:`1px solid ${C.border}`,borderRadius:"4px",background:C.card,color:C.text,fontFamily:"inherit",fontSize:C.fs(12),padding:"0 3px",cursor:"pointer",flexShrink:0}}>
         {cats.map(c=><option key={c}>{c}</option>)}
       </select>
       <input type="text" value={txt} onChange={e=>setTxt(e.target.value)} placeholder="할 일 추가..."
         onKeyDown={e=>e.key==="Enter"&&onAdd()}
-        style={{flex:1,height:"26px",border:`1px solid ${C.border}`,borderRadius:"4px",background:C.card,color:C.text,fontFamily:"inherit",fontSize:"12px",padding:"0 8px",outline:"none",boxSizing:"border-box"}}/>
+        style={{flex:1,height:"28px",border:`1px solid ${C.border}`,borderRadius:"4px",background:C.card,color:C.text,fontFamily:"inherit",fontSize:C.fs(13),padding:"0 8px",outline:"none",boxSizing:"border-box"}}/>
       <button onClick={()=>setImp(p=>!p)}
-        style={{...SQ(C,imp?C.impColor+"22":"transparent",imp?C.impColor:C.muted),border:`1px solid ${imp?C.impColor:C.border}`,fontSize:"11px"}}>
+        style={{...SQ(C,imp?C.impColor+"22":"transparent",imp?C.impColor:C.muted),border:`1px solid ${imp?C.impColor:C.border}`,fontSize:C.fs(12)}}>
         {imp?"★":"☆"}
       </button>
-      <button onClick={onAdd} style={{...SQ(C,C.accent,"#fff"),border:"none",fontSize:"19px",fontWeight:"300"}}>+</button>
+      <button onClick={onAdd} style={{...SQ(C,C.accent,"#fff"),border:"none",fontSize:C.fs(20),fontWeight:"300"}}>+</button>
     </div>
   );
 }
@@ -81,10 +83,10 @@ function TodoItem({ t, onCheck, onDel, onPost, onImp, C, mini=false, onDragStart
         style={{width:"13px",height:"13px",accentColor:C.accent,cursor:"pointer",flexShrink:0}}/>
       <span style={{fontSize:"8px",padding:"1px 4px",borderRadius:"2px",flexShrink:0,
         background:t.important?C.impColor+"22":C.normColor+"22",color:t.important?C.impColor:C.normColor}}>{t.cat}</span>
-      <span style={{flex:1,fontSize:mini?"11px":"12px",color:t.completed?C.muted:C.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{t.text}</span>
-      <button onClick={()=>onImp(t.id)} style={{...SQ(C,"transparent",t.important?C.impColor:C.muted,22),border:"none",fontSize:"11px"}}>{t.important?"★":"☆"}</button>
-      <button onClick={()=>onPost(t.id)} style={{...SQ(C,"transparent",C.muted,22),border:"none",fontSize:"11px"}}>→</button>
-      <button onClick={()=>onDel(t.id)} style={{...SQ(C,"transparent",C.muted,22),border:"none",fontSize:"12px"}}>×</button>
+      <span style={{flex:1,fontSize:mini?C.fs(12):C.fs(13),color:t.completed?C.muted:C.text,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{t.text}</span>
+      <button onClick={()=>onImp(t.id)} style={{...SQ(C,"transparent",t.important?C.impColor:C.muted,22),border:"none",fontSize:C.fs(12)}}>{t.important?"★":"☆"}</button>
+      <button onClick={()=>onPost(t.id)} style={{...SQ(C,"transparent",C.muted,22),border:"none",fontSize:C.fs(12)}}>→</button>
+      <button onClick={()=>onDel(t.id)} style={{...SQ(C,"transparent",C.muted,22),border:"none",fontSize:C.fs(13)}}>×</button>
     </div>
   );
 }
@@ -305,6 +307,27 @@ function Settings({ cfg, setCfg, cats, setCats, todos, setTodos, onClose, C }) {
         <button onClick={addCat} style={{...SQ(C,C.accent,"#fff",24),border:"none",fontSize:"16px"}}>+</button>
       </div>
 
+      {/* ── Font Size ── */}
+      {secLabel("글자 크기")}
+      <div style={{display:"flex",alignItems:"center",gap:"10px",marginBottom:"6px"}}>
+        <span style={{fontSize:"9px",color:C.muted,flexShrink:0}}>작게</span>
+        <input type="range" min="0.8" max="1.4" step="0.05"
+          value={cfg.fontScale||1}
+          onChange={e=>upd("fontScale",parseFloat(e.target.value))}
+          style={{flex:1,accentColor:C.accent,cursor:"pointer"}}/>
+        <span style={{fontSize:"9px",color:C.muted,flexShrink:0}}>크게</span>
+      </div>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:"2px"}}>
+        <div style={{padding:"5px 9px",background:C.bg,border:`1px solid ${C.border}`,borderRadius:"4px",fontSize:C.fs(13),fontFamily:C.font,color:C.text,flex:1}}>
+          가나다 ABC 할 일 목록
+        </div>
+        <span style={{fontSize:"9px",color:C.muted,marginLeft:"8px",flexShrink:0}}>{Math.round((cfg.fontScale||1)*100)}%</span>
+        <button onClick={()=>upd("fontScale",1)}
+          style={{marginLeft:"6px",height:"22px",padding:"0 7px",border:`1px solid ${C.border}`,borderRadius:"3px",background:"transparent",color:C.muted,fontSize:"9px",cursor:"pointer",flexShrink:0,fontFamily:"inherit"}}>
+          초기화
+        </button>
+      </div>
+
       {/* ── Timer toggle ── */}
       {secLabel("팝업 타이머")}
       <div style={{display:"flex",alignItems:"center",gap:"8px"}}>
@@ -339,28 +362,126 @@ function Settings({ cfg, setCfg, cats, setCats, todos, setTodos, onClose, C }) {
   );
 }
 
-// ── App ───────────────────────────────────────────────────────────────
-export default function App() {
+// ── Electron API (브라우저 fallback 포함) ────────────────────────────
+const eAPI = typeof window !== "undefined" && window.electronAPI ? window.electronAPI : null;
+const IS_POPUP = typeof window !== "undefined" && new URLSearchParams(window.location.search).get("popup") === "true";
+
+// ── useSharedState: localStorage + IPC 창 간 동기화 ──────────────────
+function useSharedState() {
   const load = (k,fb) => { try{const v=JSON.parse(localStorage.getItem(k)); return v!==null?v:fb;}catch{return fb;} };
 
-  const [todos,      setTodos]      = useState(()=>load("td",[]));
-  const [cfg,        setCfg]        = useState(()=>({...DEF,...load("td-cfg",{})}));
-  const [cats,       setCats]       = useState(()=>load("td-cats",DEF_CATS));
-  const [appVisible, setAppVisible] = useState(true);
-  const [view,       setView]       = useState("daily");
-  const [nav,        setNav]        = useState(today());
-  const [focus,      setFocus]      = useState(null);
-  const [popup,      setPopup]      = useState(false);
-  const [sett,       setSett]       = useState(false);
-  const [txt,        setTxt]        = useState("");
-  const [cat,        setCat]        = useState(()=>load("td-cats",DEF_CATS)[0]||"일반");
-  const [imp,        setImp]        = useState(false);
+  const [todos, setTodosRaw] = useState(()=>load("td",[]));
+  const [cfg,   setCfgRaw]   = useState(()=>({...DEF,...load("td-cfg",{})}));
+  const [cats,  setCatsRaw]  = useState(()=>load("td-cats",DEF_CATS));
 
-  useEffect(()=>localStorage.setItem("td",JSON.stringify(todos)),[todos]);
-  useEffect(()=>localStorage.setItem("td-cfg",JSON.stringify(cfg)),[cfg]);
-  useEffect(()=>localStorage.setItem("td-cats",JSON.stringify(cats)),[cats]);
+  // localStorage 저장 + 다른 창에 알림
+  const save = useCallback((key, val) => {
+    localStorage.setItem(key, JSON.stringify(val));
+    eAPI?.notifyStorage?.({ key, val });
+  }, []);
 
-  const C  = {...DEF,...cfg};
+  const setTodos = useCallback(fn => setTodosRaw(prev => { const next=typeof fn==="function"?fn(prev):fn; save("td",next); return next; }), [save]);
+  const setCfg   = useCallback(fn => setCfgRaw(prev  => { const next=typeof fn==="function"?fn(prev):fn; save("td-cfg",next); return next; }), [save]);
+  const setCats  = useCallback(fn => setCatsRaw(prev  => { const next=typeof fn==="function"?fn(prev):fn; save("td-cats",next); return next; }), [save]);
+
+  // 다른 창에서 온 storage 변경 수신
+  useEffect(() => {
+    if (!eAPI?.onStorageUpdate) return;
+    eAPI.onStorageUpdate(({ key, val }) => {
+      if (key==="td")       setTodosRaw(val);
+      else if (key==="td-cfg")  setCfgRaw({...DEF,...val});
+      else if (key==="td-cats") setCatsRaw(val);
+    });
+  }, []);
+
+  return { todos, setTodos, cfg, setCfg, cats, setCats };
+}
+
+// ── PopupWindow: 독립 창으로 떠있는 팝업 ─────────────────────────────
+function PopupWindow({ todos, setTodos, cfg, cats }) {
+  const C = mkC(cfg);
+  const TD = today();
+  const todosOn = useCallback(d =>
+    todos.filter(t=>t.date===d).sort((a,b)=>{ if(a.important!==b.important)return b.important-a.important; return (a.sortKey||0)-(b.sortKey||0); }),
+  [todos]);
+  const prog = useCallback(d=>{ const ts=todosOn(d); return ts.length?Math.round(ts.filter(t=>t.completed).length/ts.length*100):0; },[todosOn]);
+
+  const onCheck = id => setTodos(p=>p.map(t=>t.id===id?{...t,completed:!t.completed}:t));
+  const onDel   = id => setTodos(p=>p.filter(t=>t.id!==id));
+  const onPost  = id => setTodos(p=>p.map(t=>t.id===id?{...t,date:addDays(t.date,1)}:t));
+  const onImp   = id => setTodos(prev=>{
+    const todo=prev.find(t=>t.id===id), isNowImp=!todo.important;
+    const peer=prev.filter(t=>t.date===todo.date&&t.id!==id&&t.important===isNowImp);
+    const sk=isNowImp?(peer.length?Math.min(...peer.map(t=>t.sortKey||0))-1:0):(peer.length?Math.max(...peer.map(t=>t.sortKey||0))+1:Date.now());
+    return prev.map(t=>t.id===id?{...t,important:isNowImp,sortKey:sk}:t);
+  });
+
+  const items = todosOn(TD);
+  const p     = prog(TD);
+
+  return (
+    <div style={{
+      width:"100vw", height:"100vh", background:C.card, color:C.text,
+      fontFamily:C.font, display:"flex", flexDirection:"column",
+      border:`1px solid ${C.border}`, boxSizing:"border-box", overflow:"hidden",
+    }}>
+      <style>{`
+        *{box-sizing:border-box}
+        button{transition:opacity .15s}button:hover{opacity:.7}
+        ::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:${C.border};border-radius:2px}
+        select,input{outline:none}
+        .drag{-webkit-app-region:drag}
+        .no-drag{-webkit-app-region:no-drag}
+      `}</style>
+
+      {/* 드래그 핸들 헤더 */}
+      <div
+        className="drag"
+        onDoubleClick={()=>eAPI?.openMain?.()}
+        style={{
+          padding:"9px 12px", borderBottom:`1px solid ${C.border}`,
+          display:"flex", alignItems:"center", gap:"8px", flexShrink:0,
+          cursor:"move", userSelect:"none",
+        }}
+        title="더블클릭: 메인 창 열기 / 드래그: 창 이동">
+        <div style={{flex:1, height:"3px", background:C.border, borderRadius:"2px", overflow:"hidden"}}>
+          <div style={{width:`${p}%`, height:"100%", background:C.accent, transition:"width 0.3s"}}/>
+        </div>
+        <span style={{fontSize:"10px", color:C.accent, fontWeight:"600"}} className="no-drag">{p}%</span>
+        <button className="no-drag" onClick={()=>eAPI?.closePopup?.()}
+          style={{...SQ(C,"transparent",C.muted,22), border:"none", fontSize:"13px"}}>×</button>
+      </div>
+
+      {/* 할 일 목록 */}
+      <div style={{flex:1, overflowY:"auto", padding:"6px 10px", minHeight:0}}>
+        <TodoList items={items} setTodos={setTodos} onCheck={onCheck} onDel={onDel} onPost={onPost} onImp={onImp} C={C} mini/>
+      </div>
+
+      {/* 타이머 */}
+      {C.showTimer && <PopupTimer C={C}/>}
+    </div>
+  );
+}
+
+// ── App ───────────────────────────────────────────────────────────────
+export default function App() {
+  const { todos, setTodos, cfg, setCfg, cats, setCats } = useSharedState();
+
+  // 팝업 모드: 독립 창 UI만 렌더링
+  if (IS_POPUP) {
+    return <PopupWindow todos={todos} setTodos={setTodos} cfg={cfg} cats={cats}/>;
+  }
+
+  // ── 메인 앱 ──
+  const [view,  setView]  = useState("daily");
+  const [nav,   setNav]   = useState(today());
+  const [focus, setFocus] = useState(null);
+  const [sett,  setSett]  = useState(false);
+  const [txt,   setTxt]   = useState("");
+  const [cat,   setCat]   = useState(cats[0]||"일반");
+  const [imp,   setImp]   = useState(false);
+
+  const C  = mkC(cfg);
   const TD = today();
 
   const todosOn = useCallback(d =>
@@ -386,7 +507,10 @@ export default function App() {
     return prev.map(t=>t.id===id?{...t,important:isNowImp,sortKey:sk}:t);
   });
 
-  const handleCloseApp = () => { setAppVisible(false); setPopup(true); setSett(false); };
+  // 팝업 창 열기 (Electron IPC) / 브라우저 fallback
+  const openPopup  = () => eAPI?.openPopup?.();
+  const closeMain  = () => { eAPI?.openPopup?.(); eAPI?.closeMain?.(); };
+
   const navigate = dir => {
     if(view==="daily") setNav(addDays(nav,dir));
     else if(view==="weekly") setNav(addDays(nav,dir*7));
@@ -400,147 +524,133 @@ export default function App() {
     return `${y}년 ${m+1}월`;
   };
 
-  const activeDate = view==="daily"?nav:(focus||nav);
   const shared = { setTodos, onCheck, onDel, onPost, onImp, C };
   const afp    = { txt, setTxt, cat, setCat, imp, setImp, C, cats };
 
   return (
-    <div style={{background:appVisible?C.bg:"transparent",minHeight:appVisible?"100vh":"0",fontFamily:C.font,boxSizing:"border-box",position:"relative"}}>
+    <div style={{background:C.bg,color:C.text,fontFamily:C.font,minHeight:"100vh",boxSizing:"border-box",position:"relative"}}>
       <style>{`*{box-sizing:border-box}button{transition:opacity .15s}button:hover{opacity:.75}::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:${C.border};border-radius:2px}select,input{outline:none}`}</style>
 
-      {appVisible&&(
-        <div style={{padding:"26px 28px",color:C.text}}>
-          {/* Header */}
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-end",marginBottom:"18px"}}>
-            <div>
-              <div style={{fontSize:"9px",letterSpacing:"0.1em",textTransform:"uppercase",color:C.muted,marginBottom:"4px"}}>{view==="daily"?"일간":view==="weekly"?"주간":"월간"}</div>
-              <div style={{fontSize:"20px",fontWeight:"600",letterSpacing:"-0.02em"}}>{headerDate()}</div>
-            </div>
-            <div style={{display:"flex",gap:"4px"}}>
-              <button onClick={()=>setPopup(p=>!p)} style={SQ(C,popup?C.accent:C.card,popup?"#fff":C.text)} title="팝업 보기">⧉</button>
-              <button onClick={()=>setSett(p=>!p)} style={SQ(C,sett?C.accent:C.card,sett?"#fff":C.text)} title="설정">⚙</button>
-              <button onClick={handleCloseApp} style={SQ(C,C.card,C.muted)} title="창 닫기">×</button>
-            </div>
+      <div style={{padding:"26px 28px"}}>
+        {/* Header */}
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-end",marginBottom:"18px"}}>
+          <div>
+            <div style={{fontSize:C.fs(10),letterSpacing:"0.1em",textTransform:"uppercase",color:C.muted,marginBottom:"4px"}}>{view==="daily"?"일간":view==="weekly"?"주간":"월간"}</div>
+            <div style={{fontSize:C.fs(22),fontWeight:"600",letterSpacing:"-0.02em"}}>{headerDate()}</div>
           </div>
-
-          {/* View toggle + nav */}
-          <div style={{display:"flex",alignItems:"center",gap:"4px",marginBottom:"16px"}}>
-            {["daily","weekly","monthly"].map(v=>(
-              <button key={v} onClick={()=>{setView(v);setFocus(null);}} style={pill(C,view===v)}>{v==="daily"?"일간":v==="weekly"?"주간":"월간"}</button>
-            ))}
-            <div style={{flex:1}}/>
-            <button onClick={()=>navigate(-1)} style={SQ(C)}>‹</button>
-            <button onClick={()=>{setNav(TD);setFocus(null);}} style={{...SQ(C),width:"auto",padding:"0 8px",fontSize:"10px"}}>오늘</button>
-            <button onClick={()=>navigate(1)} style={SQ(C)}>›</button>
+          <div style={{display:"flex",gap:"4px"}}>
+            <button onClick={openPopup} style={SQ(C,C.card,C.text)} title="팝업 창 열기">⧉</button>
+            <button onClick={()=>setSett(p=>!p)} style={SQ(C,sett?C.accent:C.card,sett?"#fff":C.text)} title="설정">⚙</button>
+            <button onClick={closeMain} style={SQ(C,C.card,C.muted)} title="창 닫기 (팝업 유지)">×</button>
           </div>
+        </div>
 
-          {/* Daily */}
-          {view==="daily"&&(
-            <div>
-              <AddForm {...afp} onAdd={()=>addTodo(nav)}/>
-              <ProgBar p={prog(nav)} C={C}/>
-              <TodoList items={todosOn(nav)} {...shared}/>
-            </div>
-          )}
+        {/* View toggle + nav */}
+        <div style={{display:"flex",alignItems:"center",gap:"4px",marginBottom:"16px"}}>
+          {["daily","weekly","monthly"].map(v=>(
+            <button key={v} onClick={()=>{setView(v);setFocus(null);}} style={pill(C,view===v)}>{v==="daily"?"일간":v==="weekly"?"주간":"월간"}</button>
+          ))}
+          <div style={{flex:1}}/>
+          <button onClick={()=>navigate(-1)} style={SQ(C)}>‹</button>
+          <button onClick={()=>{setNav(TD);setFocus(null);}} style={{...SQ(C),width:"auto",padding:"0 8px",fontSize:"10px"}}>오늘</button>
+          <button onClick={()=>navigate(1)} style={SQ(C)}>›</button>
+        </div>
 
-          {/* Weekly */}
-          {view==="weekly"&&(()=>{
-            const ws=wkStart(nav), dates=Array.from({length:7},(_,i)=>addDays(ws,i));
-            return (
-              <div style={{display:"flex",flexDirection:"column",gap:"5px"}}>
-                {dates.map(d=>{
-                  const dObj=new Date(d+"T12:00:00"),di=dObj.getDay()===0?6:dObj.getDay()-1;
-                  const isToday=d===TD,isFocus=d===focus,ts=todosOn(d),p=prog(d);
-                  return (
-                    <div key={d} style={{border:`1px solid ${isFocus?C.accent:C.border}`,borderRadius:"7px",background:C.card,overflow:"hidden"}}>
-                      <div onClick={()=>setFocus(isFocus?null:d)}
-                        style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"8px 12px",cursor:"pointer",background:isToday?C.todayBg:"transparent"}}>
-                        {/* left: date + dots + count all inline */}
-                        <div style={{display:"flex",alignItems:"center",gap:"6px"}}>
-                          <span style={{fontSize:"12px",fontWeight:"600",color:isToday?C.accent:C.text}}>{dObj.getDate()} {DAYS[di]}</span>
-                          {ts.length>0&&<span style={{display:"inline-block",width:"8px"}}/>}
-                          {ts.length>0&&<TaskDots items={ts} C={C} max={10} inline/>}
-                          {ts.length>0&&<span style={{fontSize:"10px",color:C.muted}}>{ts.filter(t=>t.completed).length}/{ts.length}</span>}
-                        </div>
-                        <div style={{display:"flex",alignItems:"center",gap:"5px",width:"64px"}}>
-                          <div style={{flex:1,height:"2px",background:C.border,borderRadius:"1px"}}><div style={{width:`${p}%`,height:"100%",background:C.accent}}/></div>
-                          <span style={{fontSize:"9px",color:C.muted}}>{p}%</span>
-                        </div>
+        {/* Daily */}
+        {view==="daily"&&(
+          <div>
+            <AddForm {...afp} onAdd={()=>addTodo(nav)}/>
+            <ProgBar p={prog(nav)} C={C}/>
+            <TodoList items={todosOn(nav)} {...shared}/>
+          </div>
+        )}
+
+        {/* Weekly */}
+        {view==="weekly"&&(()=>{
+          const ws=wkStart(nav), dates=Array.from({length:7},(_,i)=>addDays(ws,i));
+          return (
+            <div style={{display:"flex",flexDirection:"column",gap:"5px"}}>
+              {dates.map(d=>{
+                const dObj=new Date(d+"T12:00:00"),di=dObj.getDay()===0?6:dObj.getDay()-1;
+                const isToday=d===TD,isFocus=d===focus,ts=todosOn(d),p=prog(d);
+                return (
+                  <div key={d} style={{border:`1px solid ${isFocus?C.accent:C.border}`,borderRadius:"7px",background:C.card,overflow:"hidden"}}>
+                    <div onClick={()=>setFocus(isFocus?null:d)}
+                      style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"8px 12px",cursor:"pointer",background:isToday?C.todayBg:"transparent"}}>
+                      <div style={{display:"flex",alignItems:"center",gap:"6px"}}>
+                        <span style={{fontSize:"12px",fontWeight:"600",color:isToday?C.accent:C.text}}>{dObj.getDate()} {DAYS[di]}</span>
+                        {ts.length>0&&<span style={{display:"inline-block",width:"8px"}}/>}
+                        {ts.length>0&&<TaskDots items={ts} C={C} max={10} inline/>}
+                        {ts.length>0&&<span style={{fontSize:"10px",color:C.muted}}>{ts.filter(t=>t.completed).length}/{ts.length}</span>}
                       </div>
-                      {isFocus&&(
-                        <div style={{padding:"8px 12px",borderTop:`1px solid ${C.border}`}}>
-                          <AddForm {...afp} onAdd={()=>addTodo(d)}/>
-                          <TodoList items={ts} {...shared} mini/>
-                        </div>
+                      <div style={{display:"flex",alignItems:"center",gap:"5px",width:"64px"}}>
+                        <div style={{flex:1,height:"2px",background:C.border,borderRadius:"1px"}}><div style={{width:`${p}%`,height:"100%",background:C.accent}}/></div>
+                        <span style={{fontSize:"9px",color:C.muted}}>{p}%</span>
+                      </div>
+                    </div>
+                    {isFocus&&(
+                      <div style={{padding:"8px 12px",borderTop:`1px solid ${C.border}`}}>
+                        <AddForm {...afp} onAdd={()=>addTodo(d)}/>
+                        <TodoList items={ts} {...shared} mini/>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          );
+        })()}
+
+        {/* Monthly */}
+        {view==="monthly"&&(()=>{
+          const d=new Date(nav+"T12:00:00"),y=d.getFullYear(),mo=d.getMonth();
+          const firstDow=new Date(y,mo,1).getDay(),offset=firstDow===0?6:firstDow-1,dim=new Date(y,mo+1,0).getDate();
+          const cells=[...Array(offset).fill(null),...Array.from({length:dim},(_,i)=>fmt(new Date(y,mo,i+1)))];
+          const ft=focus?todosOn(focus):[],fp=focus?prog(focus):0;
+          return (
+            <div>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:"2px",marginBottom:"4px"}}>
+                {DAYS.map(dn=><div key={dn} style={{textAlign:"center",fontSize:"9px",color:C.muted,padding:"3px 0"}}>{dn}</div>)}
+              </div>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:"2px",marginBottom:"14px"}}>
+                {cells.map((cd,i)=>{
+                  if(!cd) return <div key={`e${i}`}/>;
+                  const ts=todosOn(cd),p=prog(cd),isToday=cd===TD,isFocus=cd===focus;
+                  return (
+                    <div key={cd} onClick={()=>setFocus(isFocus?null:cd)}
+                      style={{padding:"5px 3px",borderRadius:"5px",cursor:"pointer",minHeight:"46px",display:"flex",flexDirection:"column",gap:"2px",
+                        background:isFocus?C.accent+"22":isToday?C.todayBg:C.card,
+                        border:`1px solid ${isFocus?C.accent:C.border}`}}>
+                      <div style={{fontSize:"11px",fontWeight:isFocus||isToday?"700":"400",color:isToday?C.accent:C.text,textAlign:"center"}}>
+                        {new Date(cd+"T12:00:00").getDate()}
+                      </div>
+                      {ts.length>0&&(
+                        <>
+                          <div style={{height:"2px",background:C.border,borderRadius:"1px",margin:"0 2px"}}>
+                            <div style={{width:`${p}%`,height:"100%",background:C.accent,borderRadius:"1px"}}/>
+                          </div>
+                          <div style={{padding:"0 2px"}}><TaskDots items={ts} C={C} max={5} dotSize={4}/></div>
+                        </>
                       )}
                     </div>
                   );
                 })}
               </div>
-            );
-          })()}
-
-          {/* Monthly */}
-          {view==="monthly"&&(()=>{
-            const d=new Date(nav+"T12:00:00"),y=d.getFullYear(),mo=d.getMonth();
-            const firstDow=new Date(y,mo,1).getDay(),offset=firstDow===0?6:firstDow-1,dim=new Date(y,mo+1,0).getDate();
-            const cells=[...Array(offset).fill(null),...Array.from({length:dim},(_,i)=>fmt(new Date(y,mo,i+1)))];
-            const ft=focus?todosOn(focus):[],fp=focus?prog(focus):0;
-            return (
-              <div>
-                <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:"2px",marginBottom:"4px"}}>
-                  {DAYS.map(dn=><div key={dn} style={{textAlign:"center",fontSize:"9px",color:C.muted,padding:"3px 0"}}>{dn}</div>)}
+              {focus&&(
+                <div style={{border:`1px solid ${C.accent}`,borderRadius:"8px",padding:"14px",background:C.card}}>
+                  <div style={{fontSize:"11px",fontWeight:"600",color:C.accent,marginBottom:"10px"}}>{new Date(focus+"T12:00:00").getDate()}일</div>
+                  <AddForm {...afp} onAdd={()=>addTodo(focus)}/>
+                  <ProgBar p={fp} C={C}/>
+                  <TodoList items={ft} {...shared} mini/>
                 </div>
-                <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:"2px",marginBottom:"14px"}}>
-                  {cells.map((cd,i)=>{
-                    if(!cd) return <div key={`e${i}`}/>;
-                    const ts=todosOn(cd),p=prog(cd),isToday=cd===TD,isFocus=cd===focus;
-                    return (
-                      <div key={cd} onClick={()=>setFocus(isFocus?null:cd)}
-                        style={{padding:"5px 3px",borderRadius:"5px",cursor:"pointer",minHeight:"46px",display:"flex",flexDirection:"column",gap:"2px",
-                          background:isFocus?C.accent+"22":isToday?C.todayBg:C.card,
-                          border:`1px solid ${isFocus?C.accent:C.border}`}}>
-                        <div style={{fontSize:"11px",fontWeight:isFocus||isToday?"700":"400",color:isToday?C.accent:C.text,textAlign:"center"}}>
-                          {new Date(cd+"T12:00:00").getDate()}
-                        </div>
-                        {ts.length>0&&(
-                          <>
-                            <div style={{height:"2px",background:C.border,borderRadius:"1px",margin:"0 2px"}}>
-                              <div style={{width:`${p}%`,height:"100%",background:C.accent,borderRadius:"1px"}}/>
-                            </div>
-                            <div style={{padding:"0 2px"}}><TaskDots items={ts} C={C} max={5} dotSize={4}/></div>
-                          </>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-                {focus&&(
-                  <div style={{border:`1px solid ${C.accent}`,borderRadius:"8px",padding:"14px",background:C.card}}>
-                    <div style={{fontSize:"11px",fontWeight:"600",color:C.accent,marginBottom:"10px"}}>{new Date(focus+"T12:00:00").getDate()}일</div>
-                    <AddForm {...afp} onAdd={()=>addTodo(focus)}/>
-                    <ProgBar p={fp} C={C}/>
-                    <TodoList items={ft} {...shared} mini/>
-                  </div>
-                )}
-              </div>
-            );
-          })()}
-        </div>
-      )}
+              )}
+            </div>
+          );
+        })()}
+      </div>
 
-      {/* ── Popup ── */}
-      {popup&&(
-        <Popup
-          items={todosOn(activeDate)} p={prog(activeDate)}
-          setTodos={setTodos} onCheck={onCheck} onDel={onDel} onPost={onPost} onImp={onImp}
-          onClose={()=>setPopup(false)}
-          onHeaderDblClick={()=>setAppVisible(true)}
-          C={C}/>
-      )}
-
-      {/* ── Settings ── */}
-      {sett&&appVisible&&(
+      {/* Settings */}
+      {sett&&(
         <Settings cfg={cfg} setCfg={setCfg} cats={cats} setCats={setCats}
           todos={todos} setTodos={setTodos} onClose={()=>setSett(false)} C={C}/>
       )}
