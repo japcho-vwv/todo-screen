@@ -1,7 +1,11 @@
-// preload.js — renderer와 main 사이의 안전한 브릿지
-// 현재는 별도 IPC 없이 localStorage만 사용하므로 최소화
-const { contextBridge } = require("electron");
+const { contextBridge, ipcRenderer } = require("electron");
 
 contextBridge.exposeInMainWorld("electronAPI", {
   platform: process.platform,
+  openPopup:  () => ipcRenderer.invoke("open-popup"),
+  closePopup: () => ipcRenderer.invoke("close-popup"),
+  openMain:   () => ipcRenderer.invoke("open-main"),
+  closeMain:  () => ipcRenderer.invoke("close-main"),
+  notifyStorage: (data) => ipcRenderer.invoke("storage-changed", data),
+  onStorageUpdate: (cb) => { ipcRenderer.on("storage-update", (_e, data) => cb(data)); },
 });
