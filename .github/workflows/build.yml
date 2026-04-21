@@ -5,6 +5,9 @@ on:
     tags:
       - "v*"
 
+permissions:
+  contents: write
+
 jobs:
   build:
     strategy:
@@ -45,10 +48,5 @@ jobs:
         with:
           files: ${{ matrix.artifact }}
           name: "할일앱 ${{ github.ref_name }}"
-          body: |
-            ## 다운로드
-            - **Windows**: `.exe` 파일 다운로드 후 설치
-            - **macOS**: `.dmg` 파일 다운로드 후 설치
-            - **Linux**: `.AppImage` 파일 다운로드 후 실행
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
